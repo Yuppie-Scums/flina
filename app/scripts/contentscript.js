@@ -9,8 +9,8 @@ var Flina = (function() {
 
   'use strict';
 
-  var container = document.documentElement;
-	var	input = document.querySelector( 'input' );
+ //  var container = document.documentElement;
+	// var	input = document.querySelector( 'input' );
 	var	currentState = null;
 
   function Flina(inputs, currentState) {
@@ -36,11 +36,13 @@ var Flina = (function() {
       // this.video.style.position = 'fixed';
       // this.video.src = 'https://raw.githubusercontent.com/auduno/clmtrackr/dev/examples/media/franck.ogv';
       this.video.autoPlay = true;
+      this.video.load();
 
       document.body.appendChild(this.video);
 
       this.source = document.createElement('source');
-      this.source.setAttribute('src', 'http://www.tools4movies.com/trailers/1012/Kill%20Bill%20Vol.3.mp4');
+      this.source.setAttribute('src', '/video/video.ogv');
+      this.source.setAttribute('src', './video/video.mp4');
 
       this.video.appendChild(this.source);
       this.video.play();
@@ -100,7 +102,7 @@ var Flina = (function() {
 
   }
 
-  var F = new Flina(input, currentState);
+  // var F = new Flina(input, currentState);
 
 
 
