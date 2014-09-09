@@ -9,9 +9,29 @@ var Flina = (function() {
 
   'use strict';
 
- //  var container = document.documentElement;
-	// var	input = document.querySelector( 'input' );
+  var container = document.documentElement;
+	var	input = document.querySelectorAll( 'input');
+  var input2 = document.getElementsByTagName('input')
+
+  console.log(input)
+  console.log(input2)
+
 	var	currentState = null;
+
+  for (var i = 0; i < input.length; i++) {
+    input[i].onfocus = function() {
+      console.log(this)
+    }
+  }
+
+  input.onfocus = function() {
+    console.log(this)
+  }
+
+  input2.onfocus = function() {
+    console.log(this)
+  }
+
 
   function Flina(inputs, currentState) {
 
@@ -20,89 +40,93 @@ var Flina = (function() {
     this.video = null;
     this.canvas = null;
 
-    // this.init()
-    // this.events();
-    // faceTracker();
+    this.setup();
+    this.events();
+
   }
 
   Flina.prototype = {
 
-    init: function() {
+    setup: function() {
+
+
+      var self = this;
 
       this.video = document.createElement('video');
-      this.video.setAttribute("id", "video");
+      this.video.setAttribute("id", "flina");
       this.video.setAttribute("width", "368");
       this.video.setAttribute("height", "288");
-      // this.video.style.position = 'fixed';
+      this.video.style.display = 'none';
       // this.video.src = 'https://raw.githubusercontent.com/auduno/clmtrackr/dev/examples/media/franck.ogv';
-      this.video.autoPlay = true;
-      this.video.load();
+      // this.video.autoPlay = true;
 
       document.body.appendChild(this.video);
 
-      this.source = document.createElement('source');
-      this.source.setAttribute('src', '/video/video.ogv');
-      this.source.setAttribute('src', './video/video.mp4');
-
-      this.video.appendChild(this.source);
       this.video.play();
 
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-      this.canvas = document.createElement('canvas');
-      this.canvas.setAttribute("id", "canvas");
-      this.canvas.setAttribute("width", "368");
-      this.canvas.setAttribute("height", "288");
-      // this.canvas.style.position = 'fixed';
+      var constraints = {audio: false, video: true};
 
-      document.body.appendChild(this.canvas);
+      function successCallback(stream) {
+        window.stream = stream; // stream available to console
+        if (window.URL) {
+          self.video.src = window.URL.createObjectURL(stream);
+        } else {
+          self.video.src = stream;
+        }
+        self.faceTracker(self.video);
+      }
+
+      function errorCallback(error){
+        console.log("navigator.getUserMedia error: ", error);
+      }
+
+      navigator.getUserMedia(constraints, successCallback, errorCallback);
 
     },
 
     events: function() {
 
-      var videoInput = document.getElementById('video');
 
-      var ctracker = new clm.tracker();
-      ctracker.init(pModel);
-      ctracker.start(videoInput);
-
-			function positionLoop() {
-        requestAnimationFrame(positionLoop);
-        var positions = ctracker.getCurrentPosition();
-        // do something with the positions ...
-        // print the positions
-        var positionString = "";
-        if (positions) {
-          for (var p = 0;p < 10;p++) {
-            positionString += "featurepoint "+p+" : ["+positions[p][0].toFixed(2)+","+positions[p][1].toFixed(2)+"]<br/>";
-          }
-          document.getElementById('positions').innerHTML = positionString;
-        }
-      }
-      positionLoop();
-
-			var canvasInput = document.getElementById('canvas');
-			var cc = canvasInput.getContext('2d');
-			function drawLoop() {
-        requestAnimationFrame(drawLoop);
-        cc.clearRect(0, 0, canvasInput.width, canvasInput.height);
-        ctracker.draw(canvasInput);
-      }
-      drawLoop();
 
     },
 
-    faceTracker: function() {
+    faceTracker: function(video) {
 
+      var videoInput = video || document.getElementById('video');
+
+      var ctrack = new clm.tracker({useWebGL : true});
+      ctrack.init(pModel);
+      ctrack.start(videoInput);
+
+      var ec = new emotionClassifier();
+      ec.init(emotionModel);
+      var emotionData = ec.getBlank();
+
+      function drawLoop() {
+					requestAnimationFrame(drawLoop);
+					var cp = ctrack.getCurrentParameters();
+					var er = ec.meanPredict(cp);
+					if (er) {
+						for (var i = 0;i < er.length;i++) {
+
+              if (er[3].value > 0.6) {
+                  console.log('happy')
+							}
+
+						}
+					}
+				}
+
+        drawLoop();
 
 
     }
 
-
-
   }
 
-  // var F = new Flina(input, currentState);
+  var F = new Flina(input, currentState);
 
 
 
