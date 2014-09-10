@@ -31,8 +31,8 @@ var Flina = (function() {
 
         var self = this;
 
-        this.startButton.click(self.startVideo, false);
-        this.stopButton.click(self.stopVideo, false);
+        this.startButton.addEventListener('click', self.startVideo, false);
+        this.stopButton.addEventListener('click', stopVideo, false);
 
     },
 
