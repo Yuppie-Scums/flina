@@ -11,6 +11,8 @@ var Flina = (function() {
 
   function Flina() {
 
+    var self = this;
+
     this.inputs = document.querySelectorAll( 'input');;
     this.hasStarted = true;
     this.requestId = undefined;
@@ -18,10 +20,11 @@ var Flina = (function() {
 
     this.insideInput = false;
     this.canSendSmiley = true;
-    this.startButton = document.getElementById('flina-button-start')
-    this.stopButton = document.getElementById('flina-button-stop')
 
-    this.events();
+    setTimeout(function() {
+      self.events();
+    }, 1000)
+
 
   }
 
@@ -29,10 +32,17 @@ var Flina = (function() {
 
     events: function() {
 
-        var self = this;
+      var self = this;
 
-        this.startButton.addEventListener('click', self.startVideo, false);
-        this.stopButton.addEventListener('click', stopVideo, false);
+      chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
+        switch(message.eventName)
+          case 'startVideo':
+            self.startVideo();
+            break;
+          case 'stopVideo':
+            self.stopVideo();
+            break;
+      });
 
     },
 
@@ -51,7 +61,7 @@ var Flina = (function() {
       video.setAttribute("width", "368");
       video.setAttribute("height", "288");
       video.style.display = 'none';
-      this.video.play();
+      video.play();
 
       return video
 
@@ -104,12 +114,29 @@ var Flina = (function() {
 
     sendSmiley: function() {
 
-      // check if we are staning in a input
-      // Have we already sent a smiley
-      //
+      // first we check if we are standing in a input;
+      // then we need to check if we have already sent a smiley;
+
+      // for
+
+      var focused = document.activeElement;
+      if (!focused || focused == document.body) {
+        focused = null;
+      } else {
+        focused.value = ':)';
+
+        this.canSendSmiley = false;
+      }
+
+      setTimeout(function() {
+        this.canSendSmiley = true;
+      }, 3000)
+
     },
 
     faceTracker: function(video) {
+
+      var self = this;
 
       var videoInput = video || document.getElementById('video');
 
@@ -128,8 +155,10 @@ var Flina = (function() {
 					if (er) {
 						for (var i = 0;i < er.length;i++) {
 
-              if (er[3].value > 0.6) {
-                  console.log('happy')
+              if (er[3].value > 0.8 && self.canSendSmiley) {
+
+                self.sendSmiley();
+
 							}
 
 						}
