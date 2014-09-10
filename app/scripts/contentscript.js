@@ -9,60 +9,75 @@ var Flina = (function() {
 
   'use strict';
 
-  var container = document.documentElement;
-	var	input = document.querySelectorAll( 'input');
-  var input2 = document.getElementsByTagName('input')
+  function Flina() {
 
-  console.log(input)
-  console.log(input2)
-
-	var	currentState = null;
-
-  for (var i = 0; i < input.length; i++) {
-    input[i].onfocus = function() {
-      console.log(this)
-    }
-  }
-
-  input.onfocus = function() {
-    console.log(this)
-  }
-
-  input2.onfocus = function() {
-    console.log(this)
-  }
-
-
-  function Flina(inputs, currentState) {
-
-    this.inputs = inputs;
-    this.currentState = currentState;
+    this.inputs = document.querySelectorAll( 'input');;
+    this.hasStarted = true;
+    this.requestId = undefined;
     this.video = null;
-    this.canvas = null;
 
-    this.setup();
+    this.insideInput = false;
+    this.canSendSmiley = true;
+    this.startButton = document.getElementById('flina-button-start')
+    this.stopButton = document.getElementById('flina-button-stop')
+
     this.events();
 
   }
 
   Flina.prototype = {
 
-    setup: function() {
+    events: function() {
 
+        var self = this;
+
+        this.startButton.click(self.startVideo, false);
+        this.stopButton.click(self.stopVideo, false);
+
+    },
+
+    startVideo: function() {
+      var self = this;
+      self.video = self.createVideoDom();
+      self.createStream()
+
+    },
+    stopVideo: function() {},
+
+    createVideoDom: function() {
+
+      var video = document.createElement('video');
+      video.setAttribute("id", "flina");
+      video.setAttribute("width", "368");
+      video.setAttribute("height", "288");
+      video.style.display = 'none';
+      this.video.play();
+
+      return video
+
+    },
+
+    destroyVideoDom: function(video) {
+
+      if (this.requestId) {
+        window.cancelAnimationFrame(this.requestId);
+        this.requestId = undefined
+
+      }
+
+      if (video) {
+        video.outerHTML = "";
+        //delete video;
+      }
+
+
+      return null;
+
+    },
+
+    createStream: function() {
 
       var self = this;
-
-      this.video = document.createElement('video');
-      this.video.setAttribute("id", "flina");
-      this.video.setAttribute("width", "368");
-      this.video.setAttribute("height", "288");
-      this.video.style.display = 'none';
-      // this.video.src = 'https://raw.githubusercontent.com/auduno/clmtrackr/dev/examples/media/franck.ogv';
-      // this.video.autoPlay = true;
-
-      document.body.appendChild(this.video);
-
-      this.video.play();
 
       navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
@@ -79,6 +94,7 @@ var Flina = (function() {
       }
 
       function errorCallback(error){
+        self.video = self.destroyVideoDom(self.video)
         console.log("navigator.getUserMedia error: ", error);
       }
 
@@ -86,10 +102,11 @@ var Flina = (function() {
 
     },
 
-    events: function() {
+    sendSmiley: function() {
 
-
-
+      // check if we are staning in a input
+      // Have we already sent a smiley
+      //
     },
 
     faceTracker: function(video) {
@@ -105,7 +122,7 @@ var Flina = (function() {
       var emotionData = ec.getBlank();
 
       function drawLoop() {
-					requestAnimationFrame(drawLoop);
+					self.requestId = requestAnimationFrame(drawLoop);
 					var cp = ctrack.getCurrentParameters();
 					var er = ec.meanPredict(cp);
 					if (er) {
@@ -121,118 +138,10 @@ var Flina = (function() {
 
         drawLoop();
 
-
     }
 
   }
 
-  var F = new Flina(input, currentState);
-
-
+  var F = new Flina();
 
 })()
-
-// console.log('\'Allo \'Allo! Content script');
-//
-//
-
-//
-// /********** check and set up video/webcam **********/
-//
-// function enablestart() {
-//     var startbutton = document.getElementById('startbutton');
-//     startbutton.value = 'start';
-//     startbutton.disabled = null;
-// }
-//
-// navigator.getUserMedia = navigator.getUserMedia ||
-//                         navigator.webkitGetUserMedia ||
-//                         navigator.mozGetUserMedia ||
-//                         navigator.msGetUserMedia;
-//
-// window.URL = window.URL ||
-//             window.webkitURL ||
-//             window.msURL ||
-//             window.mozURL;
-//
-// // check for camerasupport
-// if (navigator.getUserMedia) {
-//     // set up stream
-//
-//     var videoSelector = {video : true};
-//     if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
-//         var chromeVersion = parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
-//         if (chromeVersion < 20) {
-//             videoSelector = 'video';
-//         }
-//     }
-//
-//     navigator.getUserMedia(videoSelector, function( stream ) {
-//         if (vid.mozCaptureStream) {
-//             vid.mozSrcObject = stream;
-//         } else {
-//             vid.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
-//         }
-//         vid.play();
-//     }, function() {
-//         //insertAltVideo(vid);
-//         alert("There was some problem trying to fetch video from your webcam. If you have a webcam, please make sure to accept when the browser asks for access to your webcam.");
-//     });
-// } else {
-//     //insertAltVideo(vid);
-//     alert('This demo depends on getUserMedia, which your browser does not seem to support. :(');
-// }
-//
-// vid.addEventListener('canplay', enablestart, false);
-//
-// /*********** setup of emotion detection *************/
-//
-// var ctrack = new clm.tracker({useWebGL : true});
-// ctrack.init(pModel);
-//
-// function startVideo() {
-//     // start video
-//     vid.play();
-//     // start tracking
-//     ctrack.start(vid);
-//     // start loop to draw face
-//     drawLoop();
-// }
-//
-// function drawLoop() {
-//     requestAnimFrame(drawLoop);
-//     overlayCC.clearRect(0, 0, 400, 300);
-//     //psrElement.innerHTML = "score :" + ctrack.getScore().toFixed(4);
-//     if (ctrack.getCurrentPosition()) {
-//         ctrack.draw(overlay);
-//     }
-//     var cp = ctrack.getCurrentParameters();
-//
-//     var er = ec.meanPredict(cp);
-//     if (er) {
-//         updateData(er);
-//         for (var i = 0;i < er.length;i++) {
-//             if (er[i].value > 0.4) {
-//                 document.getElementById('icon'+(i+1)).style.visibility = 'visible';
-//             } else {
-//                 document.getElementById('icon'+(i+1)).style.visibility = 'hidden';
-//             }
-//         }
-//     }
-// }
-//
-// var ec = new emotionClassifier();
-// ec.init(emotionModel);
-// var emotionData = ec.getBlank();
-//
-// /******** stats ********/
-//
-// stats = new Stats();
-// stats.domElement.style.position = 'absolute';
-// stats.domElement.style.top = '0px';
-// document.getElementById('container').appendChild( stats.domElement );
-//
-// // update stats on every iteration
-// document.addEventListener('clmtrackrIteration', function(event) {
-//     stats.update();
-// }, false);
