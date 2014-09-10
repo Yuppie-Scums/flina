@@ -54,7 +54,10 @@ var Flina = (function() {
       self.createStream()
 
     },
-    stopVideo: function() {},
+    stopVideo: function() {
+      var self = this;
+      self.video = self.destroyVideoDom(self.video)
+    },
 
     createVideoDom: function() {
 
@@ -77,10 +80,12 @@ var Flina = (function() {
 
       }
 
-      if (video) {
-        video.outerHTML = "";
-        //delete video;
-      }
+      // if (video) {
+
+      //   video.pause();
+      //   video.src="";
+      //   //delete video;
+      // }
 
 
       return null;
