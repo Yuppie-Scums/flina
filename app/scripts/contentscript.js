@@ -35,13 +35,15 @@ var Flina = (function() {
       var self = this;
 
       chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
-        switch(message.eventName)
+        switch(message.eventName) {
           case 'startVideo':
             self.startVideo();
             break;
           case 'stopVideo':
             self.stopVideo();
             break;
+        }
+
       });
 
     },
