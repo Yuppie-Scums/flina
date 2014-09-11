@@ -4,6 +4,8 @@ window.onload = function() {
 
     document.getElementById("flina-button-start").onclick = function() {
 
+      console.log('on click')
+
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {eventName: "startVideo"});
       });

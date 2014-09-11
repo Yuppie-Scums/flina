@@ -21,9 +21,11 @@ var Flina = (function() {
     this.insideInput = false;
     this.canSendSmiley = true;
 
-    setTimeout(function() {
-      self.events();
-    }, 1000)
+    self.events();
+
+    console.log(this.inputs[0])
+
+    this.sendKeyEvent(this.inputs[0], 65)
 
 
   }
@@ -33,6 +35,8 @@ var Flina = (function() {
     events: function() {
 
       var self = this;
+
+      console.log('events')
 
       chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
         switch(message.eventName) {
@@ -49,6 +53,7 @@ var Flina = (function() {
     },
 
     startVideo: function() {
+      console.log('start video')
       var self = this;
       self.video = self.createVideoDom();
       self.createStream()
@@ -126,18 +131,71 @@ var Flina = (function() {
 
       // for
 
+      console.log('here')
+
+      var self = this;
       var focused = document.activeElement;
+
       if (!focused || focused == document.body) {
+        console.log('nooo')
         focused = null;
       } else {
-        focused.value = ':)';
-
+        focused.value = focused.value + ':)';
+        var elem = document.body;
+        this.sendKeyEvent(focused, 65)
         this.canSendSmiley = false;
       }
 
       setTimeout(function() {
-        this.canSendSmiley = true;
+        self.canSendSmiley = true;
       }, 3000)
+
+    },
+
+    sendKeyEvent: function(element, charCode) {
+
+      // We cannot pass object references, so generate an unique selector
+    var attribute = 'robw_' + Date.now();
+    element.setAttribute(attribute, '');
+    var selector = element.tagName + '[' + attribute + ']';
+
+    var s = document.createElement('script');
+    s.textContent = '(' + function(charCode, attribute, selector) {
+        // Get reference to element...
+        var element = document.querySelector(selector);
+        element.removeAttribute(attribute);
+
+        // Create KeyboardEvent instance
+        var event = document.createEvent('KeyboardEvents');
+        event.initKeyboardEvent(
+            /* type         */ 'keypress',
+            /* bubbles      */ true,
+            /* cancelable   */ false,
+            /* view         */ window,
+            /* keyIdentifier*/ '',
+            /* keyLocation  */ 0,
+            /* ctrlKey      */ false,
+            /* altKey       */ false,
+            /* shiftKey     */ false,
+            /* metaKey      */ false,
+            /* altGraphKey  */ false
+        );
+        // Define custom values
+        // This part requires the script to be run in the page's context
+        var getterCode = {get: function() {return charCode}};
+        var getterChar = {get: function() {return String.fromCharCode(charCode)}};
+        Object.defineProperties(event, {
+            charCode: getterCode,
+            which: getterChar,
+            keyCode: getterCode, // Not fully correct
+            key: getterChar,     // Not fully correct
+            char: getterChar
+        });
+
+        element.dispatchEvent(event);
+    } + ')(' + charCode + ', "' + attribute + '", "' + selector + '")';
+    (document.head||document.documentElement).appendChild(s);
+    s.parentNode.removeChild(s);
 
     },
 
