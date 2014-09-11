@@ -56,7 +56,8 @@ var Flina = (function() {
     },
     stopVideo: function() {
       var self = this;
-      self.video = self.destroyVideoDom(self.video)
+      alert('this function doesnt work right now :(')
+      // self.video = self.destroyVideoDom(self.video)
     },
 
     createVideoDom: function() {
@@ -121,6 +122,8 @@ var Flina = (function() {
 
     sendSmiley: function() {
 
+      var self = this;
+
       // first we check if we are standing in a input;
       // then we need to check if we have already sent a smiley;
 
@@ -130,13 +133,14 @@ var Flina = (function() {
       if (!focused || focused == document.body) {
         focused = null;
       } else {
-        focused.value = ':)';
+        focused.value = focused.value + ' :) ';
 
         this.canSendSmiley = false;
       }
 
       setTimeout(function() {
-        this.canSendSmiley = true;
+        self.canSendSmiley = true;
+        console.log(self.canSendSmiley)
       }, 3000)
 
     },
