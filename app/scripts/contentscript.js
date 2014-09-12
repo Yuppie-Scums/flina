@@ -1,3 +1,4 @@
+
 /*!
  * flina.js
  * MIT licensed
@@ -21,9 +22,7 @@ var Flina = (function() {
     this.insideInput = false;
     this.canSendSmiley = true;
 
-    setTimeout(function() {
-      self.events();
-    }, 1000)
+    self.events();
 
 
   }
@@ -33,6 +32,8 @@ var Flina = (function() {
     events: function() {
 
       var self = this;
+
+      console.log('events')
 
       chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
         switch(message.eventName) {
@@ -49,6 +50,7 @@ var Flina = (function() {
     },
 
     startVideo: function() {
+      console.log('start video')
       var self = this;
       self.video = self.createVideoDom();
       self.createStream()
@@ -129,19 +131,60 @@ var Flina = (function() {
 
       // for
 
+      console.log('here')
+
+      var self = this;
       var focused = document.activeElement;
+
       if (!focused || focused == document.body) {
+        console.log('nooo')
         focused = null;
       } else {
-        focused.value = focused.value + ' :) ';
 
+        focused.value = focused.value + ':)';
+        self.submitKey(focused);
+        // var elem = document.body;
+        this.sendKeyEventWontWork(focused, 13)
         this.canSendSmiley = false;
       }
 
       setTimeout(function() {
         self.canSendSmiley = true;
-        console.log(self.canSendSmiley)
       }, 3000)
+
+    },
+
+    submitKey: function(element) {
+      var node = element;
+      while (node.nodeName != "FORM" && node.parentNode) {
+          node = node.parentNode;
+      }
+      console.log(node)
+      if (node) {
+        node.submit();
+      }
+
+    },
+
+    sendKeyEventWontWork: function(element, charCode) {
+
+      // We cannot pass object references, so generate an unique selector
+      var attribute = 'robw_' + Date.now();
+      element.setAttribute(attribute, '');
+      var selector = element.tagName + '[' + attribute + ']';
+
+      var s = document.createElement('script');
+      s.textContent = '(' + function(charCode, attribute, selector) {
+
+        var e = jQuery.Event("keypress");
+        e.which = 13; //choose the one you want
+        e.keyCode = 13;
+        $(selector).trigger(e);
+
+
+      } + ')(' + charCode + ', "' + attribute + '", "' + selector + '")';
+      (document.head||document.documentElement).appendChild(s);
+      s.parentNode.removeChild(s);
 
     },
 

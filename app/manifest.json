@@ -39,6 +39,7 @@
                 "styles/main.css"
             ],
             "js": [
+                "scripts/jquery.js",
                 "scripts/tracker/clmtrackr.min.js",
                 "scripts/tracker/model_pca_20_svm_emotionDetection.js",
                 "scripts/tracker/emotion_classifier.js",
