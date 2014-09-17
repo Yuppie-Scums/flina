@@ -1,3 +1,4 @@
+
 /*!
  * flina.js
  * MIT licensed
@@ -22,10 +23,6 @@ var Flina = (function() {
     this.canSendSmiley = true;
 
     self.events();
-
-    console.log(this.inputs[0])
-
-    this.sendKeyEvent(this.inputs[0], 65)
 
 
   }
@@ -61,7 +58,8 @@ var Flina = (function() {
     },
     stopVideo: function() {
       var self = this;
-      self.video = self.destroyVideoDom(self.video)
+      alert('this function doesnt work right now :(')
+      // self.video = self.destroyVideoDom(self.video)
     },
 
     createVideoDom: function() {
@@ -126,12 +124,12 @@ var Flina = (function() {
 
     sendSmiley: function() {
 
+      var self = this;
+
       // first we check if we are standing in a input;
       // then we need to check if we have already sent a smiley;
 
       // for
-
-      console.log('here')
 
       var self = this;
       var focused = document.activeElement;
@@ -140,9 +138,11 @@ var Flina = (function() {
         console.log('nooo')
         focused = null;
       } else {
-        focused.value = focused.value + ':)';
-        var elem = document.body;
-        this.sendKeyEvent(focused, 65)
+
+        focused.value = focused.value + ':) whyyyyy ' + '\n';;
+        self.submitKey(focused);
+        // var elem = document.body;
+        // this.sendKeyEventWontWork(focused, 13)
         this.canSendSmiley = false;
       }
 
@@ -152,50 +152,37 @@ var Flina = (function() {
 
     },
 
-    sendKeyEvent: function(element, charCode) {
+    submitKey: function(element) {
+      var node = element;
+      while (node.nodeName != "FORM" && node.parentNode) {
+          console.log(node)
+          node = node.parentNode;
+      }
+      if (node) {
+        // node.submit();
+      }
+
+    },
+
+    sendKeyEventWontWork: function(element, charCode) {
 
       // We cannot pass object references, so generate an unique selector
-    var attribute = 'robw_' + Date.now();
-    element.setAttribute(attribute, '');
-    var selector = element.tagName + '[' + attribute + ']';
+      var attribute = 'robw_' + Date.now();
+      element.setAttribute(attribute, '');
+      var selector = element.tagName + '[' + attribute + ']';
 
-    var s = document.createElement('script');
-    s.textContent = '(' + function(charCode, attribute, selector) {
-        // Get reference to element...
-        var element = document.querySelector(selector);
-        element.removeAttribute(attribute);
+      var s = document.createElement('script');
+      s.textContent = '(' + function(charCode, attribute, selector) {
 
-        // Create KeyboardEvent instance
-        var event = document.createEvent('KeyboardEvents');
-        event.initKeyboardEvent(
-            /* type         */ 'keypress',
-            /* bubbles      */ true,
-            /* cancelable   */ false,
-            /* view         */ window,
-            /* keyIdentifier*/ '',
-            /* keyLocation  */ 0,
-            /* ctrlKey      */ false,
-            /* altKey       */ false,
-            /* shiftKey     */ false,
-            /* metaKey      */ false,
-            /* altGraphKey  */ false
-        );
-        // Define custom values
-        // This part requires the script to be run in the page's context
-        var getterCode = {get: function() {return charCode}};
-        var getterChar = {get: function() {return String.fromCharCode(charCode)}};
-        Object.defineProperties(event, {
-            charCode: getterCode,
-            which: getterChar,
-            keyCode: getterCode, // Not fully correct
-            key: getterChar,     // Not fully correct
-            char: getterChar
-        });
+        var e = jQuery.Event("keypress");
+        e.which = 13; //choose the one you want
+        e.keyCode = 13;
+        $(selector).trigger(e);
 
-        element.dispatchEvent(event);
-    } + ')(' + charCode + ', "' + attribute + '", "' + selector + '")';
-    (document.head||document.documentElement).appendChild(s);
-    s.parentNode.removeChild(s);
+
+      } + ')(' + charCode + ', "' + attribute + '", "' + selector + '")';
+      (document.head||document.documentElement).appendChild(s);
+      s.parentNode.removeChild(s);
 
     },
 
