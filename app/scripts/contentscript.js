@@ -131,8 +131,6 @@ var Flina = (function() {
 
       // for
 
-      console.log('here')
-
       var self = this;
       var focused = document.activeElement;
 
@@ -141,10 +139,10 @@ var Flina = (function() {
         focused = null;
       } else {
 
-        focused.value = focused.value + ':)';
+        focused.value = focused.value + ':) whyyyyy ' + '\n';;
         self.submitKey(focused);
         // var elem = document.body;
-        this.sendKeyEventWontWork(focused, 13)
+        // this.sendKeyEventWontWork(focused, 13)
         this.canSendSmiley = false;
       }
 
@@ -157,11 +155,11 @@ var Flina = (function() {
     submitKey: function(element) {
       var node = element;
       while (node.nodeName != "FORM" && node.parentNode) {
+          console.log(node)
           node = node.parentNode;
       }
-      console.log(node)
       if (node) {
-        node.submit();
+        // node.submit();
       }
 
     },
