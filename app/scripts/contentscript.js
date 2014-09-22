@@ -135,33 +135,116 @@ var Flina = (function() {
       var focused = document.activeElement;
 
       if (!focused || focused == document.body) {
-        console.log('nooo')
         focused = null;
       } else {
 
-        focused.value = focused.value + ':) whyyyyy ' + '\n';;
+        focused.value = focused.value + ':)';
         self.submitKey(focused);
         // var elem = document.body;
         // this.sendKeyEventWontWork(focused, 13)
-        this.canSendSmiley = false;
+        self.canSendSmiley = false;
       }
 
       setTimeout(function() {
         self.canSendSmiley = true;
-      }, 3000)
+      }, 10000)
 
     },
 
     submitKey: function(element) {
+      var self = this;
       var node = element;
+
       while (node.nodeName != "FORM" && node.parentNode) {
-          console.log(node)
           node = node.parentNode;
       }
-      if (node) {
-        // node.submit();
+
+      if (node.nodeName === "FORM") {
+        console.log('submit found')
+        node.submit();
+      } else {
+        console.log('submit not found')
+        self.dispatch(element)
+        self.dispatchSecondTry(65)
       }
 
+    },
+
+    dispatch: function(element)  {
+
+      console.log('dispatch')
+
+      var dispatchKeyboardEvent = function(target, initKeyboradEvent_args) {
+        var e = document.createEvent("KeyboardEvents");
+        e.initKeyboardEvent.apply(e, Array.prototype.slice.call(arguments, 1));
+        target.dispatchEvent(e);
+      };
+      var dispatchTextEvent = function(target, initTextEvent_args) {
+        var e = document.createEvent("TextEvent");
+        e.initTextEvent.apply(e, Array.prototype.slice.call(arguments, 1));
+        target.dispatchEvent(e);
+      };
+      var dispatchSimpleEvent = function(target, type, canBubble, cancelable) {
+        var e = document.createEvent("Event");
+        e.initEvent.apply(e, Array.prototype.slice.call(arguments, 1));
+        target.dispatchEvent(e);
+      };
+
+      var canceled = !dispatchKeyboardEvent(element,
+          'keydown', true, true,  // type, bubbles, cancelable
+          null,  // window
+          'h',  // key
+          0, // location: 0=standard, 1=left, 2=right, 3=numpad, 4=mobile, 5=joystick
+          '');  // space-sparated Shift, Control, Alt, etc.
+      dispatchKeyboardEvent(
+          element, 'keypress', true, true, null, 'h', 0, '');
+      if (!canceled) {
+        if (dispatchTextEvent(element, 'textInput', true, true, null, 'h', 0)) {
+          element.value += 'h';
+          dispatchSimpleEvent(element, 'input', false, false);
+          // not supported in Chrome yet
+          // if (element.form) element.form.dispatchFormInput();
+          dispatchSimpleEvent(element, 'change', false, false);
+          // not supported in Chrome yet
+          // if (element.form) element.form.dispatchFormChange();
+        }
+      }
+      dispatchKeyboardEvent(
+          element, 'keyup', true, true, null, 'h', 0, '');
+    },
+
+    dispatchSecondTry: function(key) {
+      Podium = {};
+      Podium.keydown = function(k) {
+          var oEvent = document.createEvent('KeyboardEvent');
+
+          // Chromium Hack
+          Object.defineProperty(oEvent, 'keyCode', {
+                      get : function() {
+                          return this.keyCodeVal;
+                      }
+          });
+          Object.defineProperty(oEvent, 'which', {
+                      get : function() {
+                          return this.keyCodeVal;
+                      }
+          });
+
+          if (oEvent.initKeyboardEvent) {
+              oEvent.initKeyboardEvent("keydown", true, true, document.defaultView, false, false, false, false, k, k);
+          } else {
+              oEvent.initKeyEvent("keydown", true, true, document.defaultView, false, false, false, false, k, 0);
+          }
+
+          oEvent.keyCodeVal = k;
+
+          if (oEvent.keyCode !== k) {
+              alert("keyCode mismatch " + oEvent.keyCode + "(" + oEvent.which + ")");
+          }
+
+          document.dispatchEvent(oEvent);
+      }
+      Podium.keydown(key)
     },
 
     sendKeyEventWontWork: function(element, charCode) {
@@ -206,7 +289,6 @@ var Flina = (function() {
 					var er = ec.meanPredict(cp);
 					if (er) {
 						for (var i = 0;i < er.length;i++) {
-
               if (er[3].value > 0.8 && self.canSendSmiley) {
 
                 self.sendSmiley();
