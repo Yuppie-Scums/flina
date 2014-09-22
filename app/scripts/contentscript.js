@@ -14,7 +14,7 @@ var Flina = (function() {
 
     var self = this;
 
-    this.inputs = document.querySelectorAll( 'input');;
+    this.inputs = document.querySelectorAll( 'input');
     this.hasStarted = true;
     this.requestId = undefined;
     this.video = null;
@@ -23,7 +23,6 @@ var Flina = (function() {
     this.canSendSmiley = true;
 
     self.events();
-
 
   }
 
@@ -139,7 +138,7 @@ var Flina = (function() {
         focused = null;
       } else {
 
-        focused.value = focused.value + ':) whyyyyy ' + '\n';;
+        focused.value = focused.value + ':)';
         self.submitKey(focused);
         // var elem = document.body;
         // this.sendKeyEventWontWork(focused, 13)
@@ -154,12 +153,14 @@ var Flina = (function() {
 
     submitKey: function(element) {
       var node = element;
-      while (node.nodeName != "FORM" && node.parentNode) {
+      while (node.nodeName != 'FORM' && node.parentNode) {
           console.log(node)
           node = node.parentNode;
       }
-      if (node) {
-        // node.submit();
+      if (node === 'FORM') {
+        node.submit();
+      } else {
+
       }
 
     },
@@ -174,10 +175,35 @@ var Flina = (function() {
       var s = document.createElement('script');
       s.textContent = '(' + function(charCode, attribute, selector) {
 
-        var e = jQuery.Event("keypress");
-        e.which = 13; //choose the one you want
-        e.keyCode = 13;
-        $(selector).trigger(e);
+        var press = jQuery.Event("keypress");
+        press.altGraphKey = false;
+        press.altKey = false;
+        press.bubbles = true;
+        press.cancelBubble = false;
+        press.cancelable = true;
+        press.charCode = 13;
+        press.clipboardData = undefined;
+        press.ctrlKey = false;
+        press.currentTarget = $(selector)[0];
+        press.defaultPrevented = false;
+        press.detail = 0;
+        press.eventPhase = 2;
+        press.keyCode = 13;
+        press.keyIdentifier = "";
+        press.keyLocation = 0;
+        press.layerX = 0;
+        press.layerY = 0;
+        press.metaKey = false;
+        press.pageX = 0;
+        press.pageY = 0;
+        press.returnValue = true;
+        press.shiftKey = false;
+        press.srcElement = $(selector)[0];
+        press.target = $(selector)[0];
+        press.type = "keypress";
+        press.view = Window;
+        press.which = 13;
+        $(selector).trigger(press);
 
 
       } + ')(' + charCode + ', "' + attribute + '", "' + selector + '")';
