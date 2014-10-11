@@ -5,6 +5,12 @@ Antingen en chrome plugin som registrerar när du ler och om du står i ett inpu
 Andra tanken är att bara skapa en sida där bilder rullar sjukt snabbt beroende på vilket ansiktsuttryck
 
 
-Lite varför jag anser att en sådan här plugin
+## Installation
 
-![le inspirations bild](https://pbs.twimg.com/media/Bw5EyW2IcAAHsuJ.jpg:large)
+* Yeoman
+* Grunt
+* Bower
+
+Install with npm install && bower install
+
+run extension by draging app folder to chrome extensions, build with grunt build
